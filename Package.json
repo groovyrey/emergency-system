@@ -2,10 +2,10 @@
     "name": "emergency-signup",
     "version": "1.0.0",
     "scripts": {
-        "dev": "ts-node-dev --respawn --transpile-only src/src/server.ts",
+        "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
         "build": "tsc",
-        "start": "node dist/src/server.js",
-        "setup-db": "node setup_db.js"
+        "start": "node dist/server.js",
+        "setup-db": "ts-node setup_db.ts"
     },
     "dependencies": {
         "cors": "^2.8.5",

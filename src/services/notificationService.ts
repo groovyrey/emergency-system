@@ -1,31 +1,33 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationService = void 0;
-const nodemailer_1 = __importDefault(require("nodemailer"));
-const twilio_1 = __importDefault(require("twilio"));
-class NotificationService {
+import nodemailer from 'nodemailer';
+import twilio from 'twilio';
+import { AlertNotification } from '../types';
+
+export class NotificationService {
+    private transporter: nodemailer.Transporter;
+    private twilioClient: twilio.Twilio | null = null;
+
     constructor() {
-        this.twilioClient = null;
-        this.transporter = nodemailer_1.default.createTransport({
+        this.transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
         });
+
         // Initialize Twilio client if credentials are available
         const accountSid = process.env.TWILIO_ACCOUNT_SID;
         const authToken = process.env.TWILIO_AUTH_TOKEN;
+
         if (accountSid && authToken && accountSid !== 'your-twilio-account-sid' && authToken !== 'your-twilio-auth-token') {
-            this.twilioClient = (0, twilio_1.default)(accountSid, authToken);
+            this.twilioClient = twilio(accountSid, authToken);
         }
     }
-    async sendEmailAlert(notification) {
+
+    async sendEmailAlert(notification: AlertNotification): Promise<void> {
         const emailUser = process.env.EMAIL_USER;
         const emailPass = process.env.EMAIL_PASS;
+
         if (!emailUser || !emailPass || emailUser === 'your-email@gmail.com' || emailPass === 'your-email-password') {
             console.log('Email credentials not configured. Skipping email alert.');
             console.log('Alert details:', {
@@ -39,6 +41,7 @@ class NotificationService {
             });
             return;
         }
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: notification.parentsEmail,
@@ -58,20 +61,24 @@ class NotificationService {
             </div>
             `,
         };
+
         await this.transporter.sendMail(mailOptions);
     }
-    async sendSMSAlert(parentsPhone, message) {
+
+    async sendSMSAlert(parentsPhone: string, message: string): Promise<void> {
         if (!this.twilioClient) {
             console.log('Twilio credentials not configured. Skipping SMS alert.');
             console.log(`SMS details: To: ${parentsPhone}, Message: ${message}`);
             return;
         }
+
         const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
         if (!twilioPhoneNumber || twilioPhoneNumber === 'your-twilio-phone-number') {
             console.log('Twilio phone number not configured. Skipping SMS alert.');
             console.log(`SMS details: To: ${parentsPhone}, Message: ${message}`);
             return;
         }
+
         try {
             await this.twilioClient.messages.create({
                 body: message,
@@ -79,11 +86,9 @@ class NotificationService {
                 to: parentsPhone
             });
             console.log(`SMS alert sent successfully to ${parentsPhone}`);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to send SMS alert:', error);
             console.log(`SMS details: To: ${parentsPhone}, Message: ${message}`);
         }
     }
 }
-exports.NotificationService = NotificationService;
