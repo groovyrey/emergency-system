@@ -9,7 +9,7 @@ const writeFileAsync = promisify(createWriteStream);
 export class QRService {
     async generateQRCode(data: string, filePath: string): Promise<string> {
         try {
-            const qrPath = path.join(process.cwd(), 'Public', 'qrcodes', filePath);
+            const qrPath = path.join(process.cwd(), 'public', 'qrcodes', filePath);
 
             const dir = path.dirname(qrPath);
             if (!fs.existsSync(dir)) {

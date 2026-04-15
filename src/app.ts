@@ -40,8 +40,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-app.use(express.static(path.join(process.cwd(), 'Public')));
-app.use('/qrcodes', express.static(path.join(process.cwd(), 'Public', 'qrcodes')));
+app.use(express.static(path.join(process.cwd(), 'public')));
+app.use('/qrcodes', express.static(path.join(process.cwd(), 'public', 'qrcodes')));
 
 const userModel = new UserModel();
 const qrService = new QRService();
@@ -132,7 +132,7 @@ app.post('/api/alert/:userId', async (req, res) => {
 
 // Serve QR scan page
 app.get('/scan/:id', (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'Public', 'index.html'));
+  res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
 });
 
 // Get all users (for admin purposes)
